@@ -1,5 +1,5 @@
 # The problem
-Welcome to Cradle, Ena!
+Welcome to your onsite day at Cradle, Noé!
 
 Your mission, should you choose to accept it, is to ... (drum rolls) implement the P3BO algorithm! The algorithm
 is described on page 4 of the [P3BO paper](https://arxiv.org/pdf/2006.03227.pdf). You don't need 
@@ -16,7 +16,7 @@ Each of these optimizers (also called Explorers) exposes a method `propose_seque
 in P3BO) and a method called `fit()` (the equivalent of `A.fit()` in P3BO).
 
 The model (or landscape or oracle) that you are optimizing against is going to be a fake one (a mock) so that we avoid
-running costly/hard-to-setup models. The fake oracle is just a noisy Levensthein distance from the target sequence that
+running costly/hard-to-setup models. The fake oracle is just a noisy Levensthein (a.k.a. edit) distance from the target sequence that
 is considered to be the unique global optimum solution (so the further you are from the optimum the higher the value,
 which means that you have a minimization problem). The noisy oracle is implemented in
 [noisy_abstract_model.py](flexs/models/noisy_abstract_model.py) (which is a class that adds noise to a ground truth
@@ -47,7 +47,7 @@ Have fun!
 ```bash
 git clone https://github.com/danieldanciu/p3bo.git
 ```
-2. Create a conda environment:
+2. Create a conda environment (but you can also use poetry or pip, whatever you prefer):
 ```bash
 conda create --name p3bo python=3.8
 conda activate p3bo
