@@ -9,6 +9,7 @@ class LevenstheinLandscape(flexs.landscape.Landscape):
     """ A simple landscape that returns the Levensthein distance from the optimum sequence as the fitness value """
 
     def __init__(self, target_sequence):
+        super().__init__(target_sequence)
         self.target_sequence = target_sequence
 
     def _fitness_function(self, sequences: flexs.model.SEQUENCES_TYPE) -> np.ndarray:

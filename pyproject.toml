@@ -8,12 +8,13 @@ authors = ["Daniel Danciu <daniel@cradle.bio>"]
 python = "^3.8"
 editdistance = "^0.6.0"
 torch= "*"
-numpy = "^1.23.1"
+numpy = "*"
 pandas = "^1.4.3"
 tqdm = "^4.64.0"
+pytest = "^7.4.3"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "^7"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
