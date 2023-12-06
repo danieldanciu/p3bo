@@ -336,7 +336,9 @@ class P3bo:
         self.credit_score = rewards + self.decay_rate * self.credit_score
 
         # Adjsut the sampling weights.
-        self.sampling_weights = scipy.special.softmax(self.credit_score)
+        self.sampling_weights = scipy.special.softmax(
+            self.credit_score / self.softmax_temperature
+        )
 
         # Retrain the explorers on all available data.
         for explorer in self.portfolio:

@@ -51,8 +51,9 @@ class NoisyAbstractModel(flexs.model.Model):
         # TODO: this is a quick hack.
         cache_sample = list(self.cache.keys())
         random.shuffle(cache_sample)
-        for seq in cache_sample[:100]:
-            dist = editdistance.eval(sequence, seq)
+        for seq in cache_sample[:50]:
+            # dist = editdistance.eval(sequence, seq)
+            dist = sum(c1 != c2 for c1, c2 in zip(sequence, seq))
 
             if dist == 1:
                 return dist, seq
