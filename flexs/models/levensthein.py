@@ -1,8 +1,9 @@
-from typing import List, Any
+from typing import Any, List
 
 import editdistance
-import flexs.landscape
 import numpy as np
+
+import flexs.landscape
 
 
 class LevenstheinLandscape(flexs.landscape.Landscape):

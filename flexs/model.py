@@ -1,11 +1,12 @@
 """Defines base Model class."""
 import abc
-from typing import Any, List, Union
+from typing import Any, List
 
 import numpy as np
 
 import flexs.landscape
 from flexs.types import SEQUENCES_TYPE
+
 
 class Model(flexs.landscape.Landscape, abc.ABC):
     """

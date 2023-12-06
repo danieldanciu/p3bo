@@ -1,5 +1,4 @@
 """Defines the Random explorer class."""
-import random
 from typing import Optional, Tuple
 
 import numpy as np
