@@ -1,3 +1,4 @@
+import argparse
 import random
 
 import numpy as np
@@ -10,23 +11,70 @@ from flexs.optimizers.genetic_algorithm import GeneticAlgorithm
 from flexs.optimizers.random import Random
 
 
-def main():
-    # Fix random seeds.
-    random_seed = 0
-    random.seed(random_seed)
-    np.random.seed(random_seed)
+def get_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="P3BO")
 
-    # Hyperparameters.
-    rounds = 10  # This is unused (?)
-    sequences_batch_size = 10
-    model_queries_per_batch = 100
-    batch_size = 10
-    softmax_temperature = 1.0
-    decay_rate = 0.9
-    population_size = 100
-    parent_selection_strategy = "top-proportion"
-    children_proportion = 0.5
-    parent_selection_proportion = 0.5
+    parser.add_argument(
+        "--random_seed", type=int, default=0, help="Random seed for reproducibility."
+    )
+    parser.add_argument("--run_name", type=str, default=None, help="Name for the run.")
+    parser.add_argument(
+        "--sequences_batch_size", type=int, default=15, help="Sequences batch size."
+    )
+    parser.add_argument(
+        "--model_queries_per_batch",
+        type=int,
+        default=150,
+        help="Model queries per batch.",
+    )
+    parser.add_argument(
+        "--softmax_temperature", type=float, default=1.0, help="Softmax temperature."
+    )
+    parser.add_argument("--decay_rate", type=float, default=0.9, help="Decay rate.")
+    parser.add_argument(
+        "--rounds", type=int, default=10, help="Maximum number of steps."
+    )
+    parser.add_argument("--batch_size", type=int, default=15, help="Batch size.")
+    parser.add_argument(
+        "--signal_strength",
+        type=float,
+        default=1.0,
+        help="Signal strength for the noisy model.",
+    )
+
+    # Algorithm specific flags.
+    parser.add_argument(
+        "--ga_population_size",
+        type=int,
+        default=100,
+        help="Population size for the genetic algorithm.",
+    )
+    parser.add_argument(
+        "--ga_parent_selection_strategy",
+        type=str,
+        default="top-proportion",
+        help="Parent selection strategy for the genetic algorithm.",
+    )
+    parser.add_argument(
+        "--ga_children_proportion",
+        type=float,
+        default=0.5,
+    )
+    parser.add_argument(
+        "--ga_parent_selection_proportion",
+        type=float,
+        default=0.5,
+    )
+
+    return parser.parse_args()
+
+
+def main():
+    args = get_args()
+
+    # Fix random seeds.
+    random.seed(args.random_seed)
+    np.random.seed(args.random_seed)
 
     # Problem statement.
     protein_alphabet = "ACDEFGHIKLMNPQRSTVWY"
@@ -44,46 +92,46 @@ def main():
     # Setup the explorer portfolio.
     al = Adalead(
         model=model,
-        rounds=rounds,
-        sequences_batch_size=sequences_batch_size,
-        model_queries_per_batch=model_queries_per_batch,
+        rounds=args.rounds,
+        sequences_batch_size=args.sequences_batch_size,
+        model_queries_per_batch=args.model_queries_per_batch,
         starting_sequence=starting_sequence,
         alphabet=protein_alphabet,
     )
     ga = GeneticAlgorithm(
         model=model,
-        rounds=rounds,
-        sequences_batch_size=sequences_batch_size,
-        model_queries_per_batch=model_queries_per_batch,
+        rounds=args.rounds,
+        sequences_batch_size=args.sequences_batch_size,
+        model_queries_per_batch=args.model_queries_per_batch,
         starting_sequence=starting_sequence,
         alphabet=protein_alphabet,
-        population_size=population_size,
-        parent_selection_strategy=parent_selection_strategy,
-        children_proportion=children_proportion,
-        parent_selection_proportion=parent_selection_proportion,
-        seed=random_seed,
+        population_size=args.ga_population_size,
+        parent_selection_strategy=args.ga_parent_selection_strategy,
+        children_proportion=args.ga_children_proportion,
+        parent_selection_proportion=args.ga_parent_selection_proportion,
+        seed=args.random_seed,
     )
     r = Random(
         model=model,
-        rounds=rounds,
-        sequences_batch_size=sequences_batch_size,
-        model_queries_per_batch=model_queries_per_batch,
+        rounds=args.rounds,
+        sequences_batch_size=args.sequences_batch_size,
+        model_queries_per_batch=args.model_queries_per_batch,
         starting_sequence=starting_sequence,
         alphabet=protein_alphabet,
-        seed=random_seed,
+        seed=args.random_seed,
     )
 
     optimizer = p3bo.P3bo(
         portfolio=[r],  # , [r, ga, al],
         starting_sequence=starting_sequence,
         landscape=landscape,
-        batch_size=batch_size,
-        softmax_temperature=softmax_temperature,
-        decay_rate=decay_rate,
+        batch_size=args.batch_size,
+        softmax_temperature=args.softmax_temperature,
+        decay_rate=args.decay_rate,
     )
 
     # That's the method you have to implement.
-    optimizer.optimize(num_steps=rounds)
+    optimizer.optimize(num_steps=args.rounds)
 
 
 main()
