@@ -17,6 +17,7 @@ altair = "^5.2.0"
 scipy = "^1.11.4"
 tensorboardX = "^2.6.2"
 tensorboard = "^2.15.1"
+gprof2dot = "^2022.7.29"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.4.3"
@@ -33,3 +34,7 @@ build-backend = "poetry.core.masonry.api"
 format = [{ cmd = "ruff ." }, { cmd = "isort ." }]
 test = "pytest"
 run = "python p3bo_main.py"
+profile = [
+    { cmd = "python3 -m cProfile -o profile_stats.pstats p3bo_main.py --rounds=10 --signal_strength=0.9 --run_name=profile" },
+    { cmd = "gprof2dot -f pstats profile_stats.pstats | dot -Tpng -o output.png" },
+]

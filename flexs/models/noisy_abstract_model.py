@@ -1,6 +1,7 @@
 """Define the noisy abstract model class."""
 import editdistance
 import numpy as np
+import random
 
 import flexs.model
 from flexs.types import SEQUENCES_TYPE
@@ -47,7 +48,10 @@ class NoisyAbstractModel(flexs.model.Model):
         new_dist = np.inf
         closest = None
 
-        for seq in self.cache:
+        # TODO: this is a quick hack.
+        cache_sample = list(self.cache.keys())
+        random.shuffle(cache_sample)
+        for seq in cache_sample[:100]:
             dist = editdistance.eval(sequence, seq)
 
             if dist == 1:
