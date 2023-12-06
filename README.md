@@ -1,5 +1,5 @@
 # The problem
-Welcome to your onsite day at Cradle, Lei!
+Welcome to your onsite day at Cradle, Sebastian!
 
 Your mission, should you choose to accept it, is to ... (drum rolls) implement the P3BO algorithm! The algorithm
 is described on page 4 of the [P3BO paper](https://arxiv.org/pdf/2006.03227.pdf). You don't need 
