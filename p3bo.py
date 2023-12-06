@@ -2,15 +2,19 @@
 import dataclasses
 import math
 import random
+import time
 from typing import Generator, List
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import scipy.special
+import tensorboardX
 import tqdm
 
 import flexs.explorer
 import flexs.landscape
+import flexs.model
 
 
 @dataclasses.dataclass
@@ -29,6 +33,14 @@ class Candidate:
 
     sequence: str
     model_score: float
+
+
+@dataclasses.dataclass
+class Batch:
+    time_secs: float
+    measured_sequences: pd.DataFrame
+    rewards: npt.NDArray
+    samples_by_explorer: List[List[Candidate]]
 
 
 def mutate_with_alphabet(alphabet: str, original: str) -> str:
@@ -74,6 +86,7 @@ class P3bo:
     def __init__(
         self,
         starting_sequence: str,
+        model: flexs.model.Model,
         landscape: flexs.landscape.Landscape,
         portfolio: List[flexs.explorer.Explorer],
         batch_size: int,
@@ -81,6 +94,7 @@ class P3bo:
         decay_rate: float,
     ):
         # Configuration.
+        self.model = model
         self.landscape = landscape
         self.portfolio_size = len(portfolio)
         assert self.portfolio_size > 0
@@ -134,8 +148,91 @@ class P3bo:
             - 1.0
         )
 
-    def step(self):
+    def _log(self, batch: Batch, summary_writer: tensorboardX.SummaryWriter):
+        """Records data about a batch to tensorboard."""
+
+        summary_writer.add_scalar(
+            "fmax",
+            self.measured_sequences.true_score.max(),
+            global_step=self.current_step,
+        )
+
+        # Add batch stats.
+        summary_writer.add_scalar(
+            "batch_time_secs",
+            batch.time_secs,
+            global_step=self.current_step,
+        )
+
+        summary_writer.add_scalar(
+            "mean_model_score",
+            batch.measured_sequences.model_score.mean(),
+            global_step=self.current_step,
+        )
+        summary_writer.add_histogram(
+            "model_score",
+            batch.measured_sequences.model_score.to_numpy(),
+            global_step=self.current_step,
+        )
+        summary_writer.add_scalar(
+            "max_true_score",
+            batch.measured_sequences.true_score.max(),
+            global_step=self.current_step,
+        )
+        summary_writer.add_scalar(
+            "mean_true_score",
+            batch.measured_sequences.true_score.mean(),
+            global_step=self.current_step,
+        )
+        summary_writer.add_histogram(
+            "true_score",
+            batch.measured_sequences.true_score.to_numpy(),
+            global_step=self.current_step,
+        )
+
+        # Add explorer stats.
+        summary_writer.add_histogram(
+            "sampling_weights", self.sampling_weights, global_step=self.current_step
+        )
+        for i, explorer in enumerate(self.portfolio):
+            summary_writer.add_scalar(
+                f"sampling_weights/{explorer.name}",
+                self.sampling_weights[i],
+                global_step=self.current_step,
+            )
+
+            summary_writer.add_scalar(
+                f"rewards/{explorer.name}",
+                batch.rewards[i],
+                global_step=self.current_step,
+            )
+
+            summary_writer.add_scalar(
+                f"credit_score/{explorer.name}",
+                self.credit_score[i],
+                global_step=self.current_step,
+            )
+
+            summary_writer.add_scalar(
+                f"batch_sequences/{explorer.name}",
+                len(batch.samples_by_explorer[i]),
+                global_step=self.current_step,
+            )
+
+            if batch.samples_by_explorer[i]:
+                summary_writer.add_scalar(
+                    f"mean_model_score/{explorer.name}",
+                    pd.DataFrame(batch.samples_by_explorer[i]).model_score.mean(),
+                    global_step=self.current_step,
+                )
+
+        summary_writer.add_scalar(
+            "model_cost", self.model.cost, global_step=self.current_step
+        )
+
+    def step(self) -> Batch:
         """Performs one step of the P3BO optimizer."""
+        start_time = time.time()
         self.current_step += 1
 
         batch_sequences = {}
@@ -214,7 +311,16 @@ class P3bo:
                 fitness_values=self.measured_sequences.true_score.to_numpy(),
             )
 
-    def optimize(self, num_steps: int):
+        return Batch(
+            time_secs=time.time() - start_time,
+            measured_sequences=batch_measured_sequences,
+            rewards=rewards,
+            samples_by_explorer=batch_sequences_by_explorer,
+        )
+
+    def optimize(
+        self, num_steps: int, summary_writer: tensorboardX.SummaryWriter | None
+    ):
         """Runs the optimizer for a number of steps.
 
         This is the function that you need to implement (including adding the necessary parameters)
@@ -228,4 +334,7 @@ class P3bo:
             progress := tqdm.tqdm(range(num_steps), leave=False, desc="Optimizing ...")
         ):
             progress.set_description(f"Step {self.current_step}")
-            self.step()
+            batch = self.step()
+
+            if summary_writer is not None:
+                self._log(batch=batch, summary_writer=summary_writer)

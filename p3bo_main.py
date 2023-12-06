@@ -1,7 +1,9 @@
 import argparse
+import datetime as dt
 import random
 
 import numpy as np
+import tensorboardX
 
 import p3bo
 from flexs.models.levensthein import LevenstheinLandscape
@@ -124,14 +126,28 @@ def main():
     optimizer = p3bo.P3bo(
         portfolio=[r],  # , [r, ga, al],
         starting_sequence=starting_sequence,
+        model=model,
         landscape=landscape,
         batch_size=args.batch_size,
         softmax_temperature=args.softmax_temperature,
         decay_rate=args.decay_rate,
     )
 
-    # That's the method you have to implement.
-    optimizer.optimize(num_steps=args.rounds)
+    # TODO: add more arguments.
+    parameters = ",".join(
+        [
+            f"b={args.batch_size}",
+            f"t={args.softmax_temperature}",
+            f"dr={args.decay_rate}",
+            f"ss={args.signal_strength}",
+        ]
+    )
+    run_name = (
+        f"{args.run_name or dt.datetime.now().strftime('%b%d_%H-%M-%S')} {parameters}"
+    )
+
+    with tensorboardX.SummaryWriter(logdir=f"runs/{run_name}") as summary_writer:
+        optimizer.optimize(num_steps=args.rounds, summary_writer=summary_writer)
 
 
 main()
