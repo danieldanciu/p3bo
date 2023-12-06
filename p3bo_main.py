@@ -7,6 +7,7 @@ import tensorboardX
 
 import p3bo
 from flexs.models.levensthein import LevenstheinLandscape
+from flexs.model import LandscapeAsModel
 from flexs.models.noisy_abstract_model import NoisyAbstractModel
 from flexs.optimizers.adalead import Adalead
 from flexs.optimizers.genetic_algorithm import GeneticAlgorithm
@@ -84,7 +85,11 @@ def main():
 
     # Create a naive/mock model that simply computes the distance from the target optimum.
     landscape = LevenstheinLandscape(optimal_sequence)
-    model = NoisyAbstractModel(landscape=landscape)
+
+    if args.signal_strength < 1.0:
+        model = NoisyAbstractModel(landscape=landscape)
+    else:
+        model = LandscapeAsModel(landscape=landscape)
 
     # Get a sequence 80% identical to the optimal.
     starting_sequence = p3bo.get_starting_sequence(
@@ -124,7 +129,7 @@ def main():
     )
 
     optimizer = p3bo.P3bo(
-        portfolio=[r],  # , [r, ga, al],
+        portfolio=[r, ga, al],
         starting_sequence=starting_sequence,
         model=model,
         landscape=landscape,
@@ -146,7 +151,9 @@ def main():
         f"{args.run_name or dt.datetime.now().strftime('%b%d_%H-%M-%S')} {parameters}"
     )
 
-    with tensorboardX.SummaryWriter(logdir=f"runs/{run_name}") as summary_writer:
+    with tensorboardX.SummaryWriter(
+        logdir=f"artifacts/runs/{run_name}"
+    ) as summary_writer:
         optimizer.optimize(num_steps=args.rounds, summary_writer=summary_writer)
 
 

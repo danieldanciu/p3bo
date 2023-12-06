@@ -82,6 +82,23 @@ def sample_from_explorer(
             yield Candidate(sequence=sequence, model_score=score)
 
 
+def hamming_distance(s1: str, s2: str) -> float:
+    """Computes the hamming distance of two strings."""
+    assert len(s1) == len(s2)
+    return sum(c1 != c2 for c1, c2 in zip(s1, s2)) / len(s1)
+
+
+def mean_hamming_distance(sequences: List[str]) -> float:
+    """Computes the mean hamming distance."""
+    s = 0.0
+    n = 0
+    for i, s1 in enumerate(sequences):
+        for s2 in sequences[i:]:
+            n += 1
+            s += hamming_distance(s1, s2)
+    return s / n if n > 0 else 0.0
+
+
 class P3bo:
     def __init__(
         self,
@@ -139,6 +156,8 @@ class P3bo:
         Returns:
             The raw (undecayed) reward.
         """
+        if not proposed_sequences:
+            return -1.0
         return (
             max(
                 batch_measurements.true_score[candidate.sequence]
@@ -189,6 +208,11 @@ class P3bo:
             batch.measured_sequences.true_score.to_numpy(),
             global_step=self.current_step,
         )
+        summary_writer.add_scalar(
+            "mean_hamming_distance",
+            mean_hamming_distance(batch.measured_sequences.sequence.to_numpy()),
+            global_step=self.current_step,
+        )
 
         # Add explorer stats.
         summary_writer.add_histogram(
@@ -216,6 +240,16 @@ class P3bo:
             summary_writer.add_scalar(
                 f"batch_sequences/{explorer.name}",
                 len(batch.samples_by_explorer[i]),
+                global_step=self.current_step,
+            )
+
+            summary_writer.add_scalar(
+                f"mean_hamming_distance/{explorer.name}",
+                mean_hamming_distance(
+                    sequences=[
+                        sequence.sequence for sequence in batch.samples_by_explorer[i]
+                    ]
+                ),
                 global_step=self.current_step,
             )
 

@@ -166,4 +166,4 @@ cython_debug/
 poetry.lock
 
 # Tensorboard runs.
-runs/
+artifacts/
