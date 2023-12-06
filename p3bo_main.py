@@ -6,8 +6,8 @@ import numpy as np
 import tensorboardX
 
 import p3bo
-from flexs.models.levensthein import LevenstheinLandscape
 from flexs.model import LandscapeAsModel
+from flexs.models.levensthein import LevenstheinLandscape
 from flexs.models.noisy_abstract_model import NoisyAbstractModel
 from flexs.optimizers.adalead import Adalead
 from flexs.optimizers.genetic_algorithm import GeneticAlgorithm
