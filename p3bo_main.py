@@ -13,9 +13,22 @@ from flexs.optimizers.random import Random
 def main():
     # Fix random seeds.
     random_seed = 0
-    random.seed(0)
-    np.random.seed(0)
+    random.seed(random_seed)
+    np.random.seed(random_seed)
 
+    # Hyperparameters.
+    rounds = 10  # This is unused (?)
+    sequences_batch_size = 10
+    model_queries_per_batch = 100
+    batch_size = 10
+    softmax_temperature = 1.0
+    decay_rate = 0.9
+    population_size = 100
+    parent_selection_strategy = "top-proportion"
+    children_proportion = 0.5
+    parent_selection_proportion = 0.5
+
+    # Problem statement.
     protein_alphabet = "ACDEFGHIKLMNPQRSTVWY"
     optimal_sequence = "MKYTKVMRYQIIKPLNAEWDELGMVLRDIQKETRAALNKTIQLCWEYQGFSADYKQIHGQYPKPKDVLGYTSMHGYAYDRLKNEFSKIASSNLSQTIKRAVDKWNSDLKEILRGDRSIPNFRKDCPIDIVKQSTKIQKCNDGYVLSLGLINREYKNELGRKNGVFDVLIKANDKTQQTILERIINGDYTYTASQIINHKNKWFINLTYQFETKETALDPNNVMGVDLGIVYPVYIAFNNSLHRYHIKGGEIERFRRQVEKRKRELLNQGKYCGDGRKGHGYATRTKSIESISDKIARFRDTCNHKYSRFIVDMALKHNCGIIQMEDLTGISKESTFLKNWTYYDLQQKIEYKAREAGIQVIKIEPQYTSQRCSKCGYIDKENRQEQATFKCIECGFKTNADYNAARNIAIPNIDKIIRKTLKMQ"
 
@@ -31,30 +44,30 @@ def main():
     # Setup the explorer portfolio.
     al = Adalead(
         model=model,
-        rounds=10,
-        sequences_batch_size=10,
-        model_queries_per_batch=100,
+        rounds=rounds,
+        sequences_batch_size=sequences_batch_size,
+        model_queries_per_batch=model_queries_per_batch,
         starting_sequence=starting_sequence,
         alphabet=protein_alphabet,
     )
     ga = GeneticAlgorithm(
         model=model,
-        rounds=10,
-        sequences_batch_size=10,
-        model_queries_per_batch=100,
+        rounds=rounds,
+        sequences_batch_size=sequences_batch_size,
+        model_queries_per_batch=model_queries_per_batch,
         starting_sequence=starting_sequence,
         alphabet=protein_alphabet,
-        population_size=100,
-        parent_selection_strategy="top-proportion",
-        children_proportion=0.5,
-        parent_selection_proportion=0.5,
+        population_size=population_size,
+        parent_selection_strategy=parent_selection_strategy,
+        children_proportion=children_proportion,
+        parent_selection_proportion=parent_selection_proportion,
         seed=random_seed,
     )
     r = Random(
         model=model,
-        rounds=10,
-        sequences_batch_size=10,
-        model_queries_per_batch=100,
+        rounds=rounds,
+        sequences_batch_size=sequences_batch_size,
+        model_queries_per_batch=model_queries_per_batch,
         starting_sequence=starting_sequence,
         alphabet=protein_alphabet,
         seed=random_seed,
@@ -64,13 +77,13 @@ def main():
         portfolio=[r],  # , [r, ga, al],
         starting_sequence=starting_sequence,
         landscape=landscape,
-        batch_size=10,
-        softmax_temperature=1.0,
-        decay_rate=0.9,
+        batch_size=batch_size,
+        softmax_temperature=softmax_temperature,
+        decay_rate=decay_rate,
     )
 
     # That's the method you have to implement.
-    optimizer.optimize(num_steps=10)
+    optimizer.optimize(num_steps=rounds)
 
 
 main()
