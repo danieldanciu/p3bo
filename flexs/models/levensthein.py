@@ -17,7 +17,9 @@ class LevenstheinLandscape(flexs.landscape.Landscape):
         result = []
         for seq in sequences:
             result.append(editdistance.eval(seq, self.target_sequence))
-        return np.array(result)
+
+        # Fitnesss 0 ... 1.
+        return 1.0 - np.array(result) / len(self.target_sequence)
 
     def train(self, sequences: flexs.model.SEQUENCES_TYPE, labels: List[Any]):
         """The Levensthein model cannot be trained"""
