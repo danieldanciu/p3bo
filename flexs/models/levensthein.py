@@ -7,9 +7,10 @@ import flexs.landscape
 
 
 class LevenstheinLandscape(flexs.landscape.Landscape):
-    """ A simple landscape that returns the Levensthein distance from the optimum sequence as the fitness value """
+    """A simple landscape that returns the Levensthein distance from the optimum sequence as the fitness value"""
 
     def __init__(self, target_sequence):
+        super().__init__(name="Levensthein")
         self.target_sequence = target_sequence
 
     def _fitness_function(self, sequences: flexs.model.SEQUENCES_TYPE) -> np.ndarray:
@@ -19,5 +20,5 @@ class LevenstheinLandscape(flexs.landscape.Landscape):
         return np.array(result)
 
     def train(self, sequences: flexs.model.SEQUENCES_TYPE, labels: List[Any]):
-        """ The Levensthein model cannot be trained """
+        """The Levensthein model cannot be trained"""
         pass

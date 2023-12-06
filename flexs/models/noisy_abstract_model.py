@@ -20,9 +20,9 @@ class NoisyAbstractModel(flexs.model.Model):
     """
 
     def __init__(
-            self,
-            landscape: flexs.landscape.Landscape,
-            signal_strength: float = 0.9,
+        self,
+        landscape: flexs.landscape.Landscape,
+        signal_strength: float = 0.9,
     ):
         """
         Create a noisy abstract model.
@@ -76,7 +76,6 @@ class NoisyAbstractModel(flexs.model.Model):
 
         new_fitnesses = []
         for seq in sequences[~cached]:
-
             # Otherwise, fitness = alpha * true_fitness + (1 - alpha) * noise
             # where alpha = signal_strength ^ (dist to nearest neighbor)
             # and noise is the nearest neighbor's fitness plus exponentially
@@ -90,7 +89,7 @@ class NoisyAbstractModel(flexs.model.Model):
             else:
                 noise = np.random.choice(list(self.cache.values()))
 
-            alpha = self.ss ** distance
+            alpha = self.ss**distance
             new_fitnesses.append(alpha * signal + (1 - alpha) * noise)
 
         fitnesses[~cached] = new_fitnesses
