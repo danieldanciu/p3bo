@@ -30,6 +30,10 @@ def get_starting_sequence(
       base_sequence: The sequence to modify.
       identity_percent: The fraction of positions to keep intact.
     """
+
+    # Maybe better to use flexs.sequence_utils generate_random_mutant,
+    # but we can solve it exactly.
+
     n = len(base_sequence)
     num_mutations = math.ceil((1.0 - identity_percent / 100.0) * n)
     mutant = list(base_sequence)
