@@ -12,6 +12,7 @@ from flexs.optimizers.random import Random
 
 def main():
     # Fix random seeds.
+    random_seed = 0
     random.seed(0)
     np.random.seed(0)
 
@@ -47,6 +48,7 @@ def main():
         parent_selection_strategy="top-proportion",
         children_proportion=0.5,
         parent_selection_proportion=0.5,
+        seed=random_seed,
     )
     r = Random(
         model=model,
@@ -55,6 +57,7 @@ def main():
         model_queries_per_batch=100,
         starting_sequence=starting_sequence,
         alphabet=protein_alphabet,
+        seed=random_seed,
     )
 
     optimizer = p3bo.P3bo(
