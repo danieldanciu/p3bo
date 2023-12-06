@@ -18,12 +18,16 @@ def main():
     protein_alphabet = "ACDEFGHIKLMNPQRSTVWY"
     optimal_sequence = "MKYTKVMRYQIIKPLNAEWDELGMVLRDIQKETRAALNKTIQLCWEYQGFSADYKQIHGQYPKPKDVLGYTSMHGYAYDRLKNEFSKIASSNLSQTIKRAVDKWNSDLKEILRGDRSIPNFRKDCPIDIVKQSTKIQKCNDGYVLSLGLINREYKNELGRKNGVFDVLIKANDKTQQTILERIINGDYTYTASQIINHKNKWFINLTYQFETKETALDPNNVMGVDLGIVYPVYIAFNNSLHRYHIKGGEIERFRRQVEKRKRELLNQGKYCGDGRKGHGYATRTKSIESISDKIARFRDTCNHKYSRFIVDMALKHNCGIIQMEDLTGISKESTFLKNWTYYDLQQKIEYKAREAGIQVIKIEPQYTSQRCSKCGYIDKENRQEQATFKCIECGFKTNADYNAARNIAIPNIDKIIRKTLKMQ"
 
-    # create a naive/mock model that simply computes the distance from the target optimum
-    model = NoisyAbstractModel(LevenstheinLandscape(optimal_sequence))
+    # Create a naive/mock model that simply computes the distance from the target optimum.
+    landscape = LevenstheinLandscape(optimal_sequence)
+    model = NoisyAbstractModel(landscape=landscape)
 
+    # Get a sequence 80% identical to the optimal.
     starting_sequence = p3bo.get_starting_sequence(
-        optimal_sequence, 80
-    )  # get a sequence 80% identical to the optimal
+        alphabet=protein_alphabet, base_sequence=optimal_sequence, identity_percent=80
+    )
+
+    # Setup the explorer portfolio.
     al = Adalead(
         model=model,
         rounds=10,
@@ -53,10 +57,17 @@ def main():
         alphabet=protein_alphabet,
     )
 
-    optimizer = p3bo.P3bo(portfolio=[r, ga, al])
+    optimizer = p3bo.P3bo(
+        portfolio=[r],  # , [r, ga, al],
+        starting_sequence=starting_sequence,
+        landscape=landscape,
+        batch_size=10,
+        softmax_temperature=1.0,
+        decay_rate=0.9,
+    )
 
-    # that's the method you have to implement
-    optimizer.optimize()
+    # That's the method you have to implement.
+    optimizer.optimize(num_steps=10)
 
 
 main()

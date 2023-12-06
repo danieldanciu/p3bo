@@ -30,3 +30,4 @@ build-backend = "poetry.core.masonry.api"
 [tool.poe.tasks]
 format = [{ cmd = "ruff ." }, { cmd = "isort ." }]
 test = "pytest"
+run = "python p3bo_main.py"
